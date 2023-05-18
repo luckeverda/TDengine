@@ -5506,3 +5506,9 @@ void tsdbReaderSetId(STsdbReader* pReader, const char* idstr) {
 }
 
 void tsdbReaderSetCloseFlag(STsdbReader* pReader) { pReader->code = TSDB_CODE_TSC_QUERY_CANCELLED; }
+
+int64_t tsdbGetLastKey(STsdbReader* pReader) {
+  int64_t key = INT64_MIN;
+
+  return key;
+}

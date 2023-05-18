@@ -120,13 +120,11 @@ typedef struct {
 } SStreamMergedSubmit;
 
 typedef struct {
-  int8_t type;
-
+  int8_t  type;
   int32_t srcVgId;
   int32_t childId;
   int64_t sourceVer;
   int64_t reqId;
-
   SArray* blocks;  // SArray<SSDataBlock>
 } SStreamDataBlock;
 
@@ -327,6 +325,8 @@ struct SStreamTask {
   int64_t             checkpointingId;
   int32_t             checkpointAlignCnt;
   struct SStreamMeta* pMeta;
+
+  struct SStreamQueueReader* pQueueReader;
 };
 
 // meta

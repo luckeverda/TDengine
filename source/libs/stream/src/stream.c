@@ -290,13 +290,10 @@ bool tInputQueueIsFull(const SStreamTask* pTask) {
 
 int32_t tAppendDataToInputQueue(SStreamTask* pTask, SStreamQueueItem* pItem) {
   int8_t  type = pItem->type;
-  int32_t total = taosQueueItemSize(pTask->inputQueue->queue) + 1;
+  int32_t numOfBlocks = taosQueueItemSize(pTask->inputQueue->queue) + 1;
   double  size = QUEUE_MEM_SIZE_IN_MB(pTask->inputQueue->queue);
 
   if (type == STREAM_INPUT__DATA_SUBMIT) {
-    int32_t numOfBlocks = taosQueueItemSize(pTask->inputQueue->queue) + 1;
-    double  size = QUEUE_MEM_SIZE_IN_MB(pTask->inputQueue->queue);
-
     SStreamDataSubmit* px = (SStreamDataSubmit*)pItem;
     qDebug("s-task:%s submit enqueue msgLen:%d ver:%" PRId64 ", total in queue:%d, size:%.2fMiB", pTask->id.idStr,
            px->submit.msgLen, px->submit.ver, numOfBlocks, size);
@@ -312,9 +309,6 @@ int32_t tAppendDataToInputQueue(SStreamTask* pTask, SStreamQueueItem* pItem) {
     taosWriteQitem(pTask->inputQueue->queue, pItem);
   } else if (type == STREAM_INPUT__DATA_BLOCK || type == STREAM_INPUT__DATA_RETRIEVE ||
              type == STREAM_INPUT__REF_DATA_BLOCK) {
-    int32_t numOfBlocks = taosQueueItemSize(pTask->inputQueue->queue) + 1;
-    double  size = QUEUE_MEM_SIZE_IN_MB(pTask->inputQueue->queue);
-
     if ((pTask->taskLevel == TASK_LEVEL__SOURCE) && (tInputQueueIsFull(pTask))) {
       qError("s-task:%s input queue is full, capacity:%d size:%d MiB, current(blocks:%d, size:%.2fMiB) abort",
              pTask->id.idStr, STREAM_TASK_INPUT_QUEUEU_CAPACITY, STREAM_TASK_INPUT_QUEUEU_CAPACITY_IN_SIZE, numOfBlocks,

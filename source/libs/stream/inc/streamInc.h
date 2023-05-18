@@ -31,6 +31,9 @@ typedef struct {
   void*  timer;
 } SStreamGlobalEnv;
 
+typedef struct SStreamQueueReader SStreamQueueReader;
+typedef struct SBlocksBatch  SBlocksBatch;
+
 static SStreamGlobalEnv streamEnv;
 
 int32_t streamDispatch(SStreamTask* pTask);
@@ -48,6 +51,16 @@ int32_t streamDispatchOneRecoverFinishReq(SStreamTask* pTask, const SStreamRecov
                                           SEpSet* pEpSet);
 
 SStreamQueueItem* streamMergeQueueItem(SStreamQueueItem* dst, SStreamQueueItem* pElem);
+
+SStreamQueueReader* createQueueReader(SStreamTask* pTask, int32_t maxDuration, int32_t minBlocks, int32_t maxBlocks);
+void*               destroyQueueReader(SStreamQueueReader* pReader);
+
+SBlocksBatch* queueReaderGetNewBlockBatch(SStreamQueueReader* pReader);
+void* destroyBlockBatch(SBlocksBatch* pBatch);
+
+int32_t queueReaderGetBlockType(SBlocksBatch* pBatch, int32_t *type, int64_t* ver);
+SStreamQueueItem* queueReaderGetRawItems(SBlocksBatch* pBatch);
+SBlocksBatch* queueReaderGetCurrentBlockBatch(SStreamQueueReader* pReader);
 
 #ifdef __cplusplus
 }
