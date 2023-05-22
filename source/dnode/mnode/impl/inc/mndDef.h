@@ -157,6 +157,7 @@ typedef struct {
   void*       rpcRsp;
   int32_t     rpcRspLen;
   int32_t     redoActionPos;
+  SArray*     prepareActions;
   SArray*     redoActions;
   SArray*     undoActions;
   SArray*     commitActions;
@@ -371,6 +372,7 @@ typedef struct {
   SVnodeGid vnodeGid[TSDB_MAX_REPLICA + TSDB_MAX_LEARNER_REPLICA];
   void*     pTsma;
   int32_t   numOfCachedTables;
+  int8_t    active;
 } SVgObj;
 
 typedef struct {

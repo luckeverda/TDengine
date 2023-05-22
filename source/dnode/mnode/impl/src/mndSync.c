@@ -18,6 +18,8 @@
 #include "mndCluster.h"
 #include "mndTrans.h"
 
+static int32_t mndProcessSdbRawReq(SMnode *pMnode, SRpcMsg *pMsg, int64_t version, const SFsmCbMeta *pMeta);
+
 static int32_t mndSyncEqCtrlMsg(const SMsgCb *msgcb, SRpcMsg *pMsg) {
   if (pMsg == NULL || pMsg->pCont == NULL) {
     return -1;
@@ -116,7 +118,7 @@ int32_t mndProcessWriteMsg(const SSyncFSM *pFsm, SRpcMsg *pMsg, const SFsmCbMeta
     if (pTrans != NULL) {
       mInfo("trans:%d, execute in mnode which not leader or sync timeout, createTime:%" PRId64 " saved trans:%d",
             transId, pTrans->createdTime, pMgmt->transId);
-      mndTransExecute(pMnode, pTrans, false);
+      mndTransRefresh(pMnode, pTrans);
       mndReleaseTrans(pMnode, pTrans);
     } else {
       mError("trans:%d, not found while execute in mnode since %s", transId, terrstr());
