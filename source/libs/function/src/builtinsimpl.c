@@ -4090,7 +4090,12 @@ static uint64_t hllCountCnt(uint8_t* buckets) {
   }
 
   z += m * hllSigma(buckethisto[0] / (double)m);
+
+#ifdef _TD_SYLIXOS_
+  double E = (double)llround(HLL_ALPHA_INF * m * m / z);
+#else
   double E = (double)llroundl(HLL_ALPHA_INF * m * m / z);
+#endif
 
   return (uint64_t)E;
 }
