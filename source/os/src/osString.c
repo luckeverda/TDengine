@@ -130,6 +130,9 @@ int32_t convUsed[2] = {0, 0};
 int32_t gConvMaxNum[2] = {0, 0};
 
 int32_t taosConvInit(void) {
+#if defined(_TD_SYLIXOS_)
+  return 0;
+#else
   int8_t M2C = 0;
   gConvMaxNum[M2C] = 512;
   gConvMaxNum[1 - M2C] = 512;
@@ -151,6 +154,7 @@ int32_t taosConvInit(void) {
   }
 
   return 0;
+#endif
 }
 
 void taosConvDestroy() {

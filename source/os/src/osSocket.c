@@ -978,6 +978,11 @@ uint32_t taosGetIpv4FromFqdn(const char *fqdn) {
 }
 
 int32_t taosGetFqdn(char *fqdn) {
+#if defined(_TD_SYLIXOS_)
+  strcpy(fqdn, "127.0.0.1");
+  return 0;
+#endif
+
 #ifdef WINDOWS
   // Initialize Winsock
   WSADATA wsaData;

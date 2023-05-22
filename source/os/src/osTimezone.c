@@ -745,9 +745,10 @@ char *tz_win[554][2] = {{"Asia/Shanghai", "China Standard Time"},
 
 void taosSetSystemTimezone(const char *inTimezoneStr, char *outTimezoneStr, int8_t *outDaylight,
                            enum TdTimezone *tsTimezone) {
-#ifdef _TD_SYLIXOS_
-    int daylight = 0;
+#if defined(_TD_SYLIXOS_)
+  return;
 #endif
+  int daylight = 0;
 
   if (inTimezoneStr == NULL || inTimezoneStr[0] == 0) return;
 
@@ -832,9 +833,11 @@ void taosSetSystemTimezone(const char *inTimezoneStr, char *outTimezoneStr, int8
 }
 
 void taosGetSystemTimezone(char *outTimezoneStr, enum TdTimezone *tsTimezone) {
-#ifdef _TD_SYLIXOS_
-    int daylight = 0;
+#if defined(_TD_SYLIXOS_)
+  return;
 #endif
+
+  int daylight = 0;
 
 #ifdef WINDOWS
   char  value[100];
