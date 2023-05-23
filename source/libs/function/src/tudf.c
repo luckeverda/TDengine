@@ -208,8 +208,10 @@ static void udfWatchUdfd(void *args) {
 
 int32_t udfStartUdfd(int32_t startDnodeId) {
   if (!tsStartUdfd) {
-    fnInfo("start udfd is disabled.") return 0;
+    fnInfo("start udfd is disabled.");
+    return 0;
   }
+
   SUdfdData *pData = &udfdGlobal;
   if (pData->startCalled) {
     fnInfo("dnode start udfd already called");
@@ -238,6 +240,11 @@ int32_t udfStartUdfd(int32_t startDnodeId) {
 }
 
 int32_t udfStopUdfd() {
+  if (!tsStartUdfd) {
+    fnInfo("start udfd is disabled.");
+    return 0;
+  }
+
   SUdfdData *pData = &udfdGlobal;
   fnInfo("udfd start to stop, need cleanup:%d, spawn err:%d", pData->needCleanUp, pData->spawnErr);
   if (!pData->needCleanUp || atomic_load_32(&pData->stopCalled)) {
@@ -1649,6 +1656,11 @@ void constructUdfService(void *argsThread) {
 }
 
 int32_t udfcOpen() {
+  if (!tsStartUdfd) {
+    fnInfo("open udfd is disabled.");
+    return 0;
+  }
+
   int8_t old = atomic_val_compare_exchange_8(&gUdfcProxy.initialized, 0, 1);
   if (old == 1) {
     return 0;
@@ -1668,6 +1680,11 @@ int32_t udfcOpen() {
 }
 
 int32_t udfcClose() {
+  if (!tsStartUdfd) {
+    fnInfo("close udfd is disabled.");
+    return 0;
+  }
+
   int8_t old = atomic_val_compare_exchange_8(&gUdfcProxy.initialized, 1, 0);
   if (old == 0) {
     return 0;
