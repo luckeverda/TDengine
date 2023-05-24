@@ -484,6 +484,7 @@ static void doInitGlobalConfig(void) {
   tsEnableTelemetryReporting = 0;
   tsAsyncLog = 0;
   tsEnableMonitorModule = 0;
+  tsEnableHttpModule = 0;
 #endif
 
   SGlobalCfg cfg = {0};

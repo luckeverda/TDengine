@@ -73,6 +73,7 @@ bool taosGetSysMemory(float *memoryUsedMB) {
 }
 
 bool taosGetProcMemory(float *memoryUsedMB) {
+#if !defined(_TD_SYLIXOS_)
   FILE *fp = fopen(tsProcMemFile, "r");
   if (fp == NULL) {
     uError("open file:%s failed", tsProcMemFile);
@@ -107,6 +108,9 @@ bool taosGetProcMemory(float *memoryUsedMB) {
 
   tfree(line);
   fclose(fp);
+#else
+  *memoryUsedMB = 100;
+#endif
   return true;
 }
 
