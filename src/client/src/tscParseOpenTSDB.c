@@ -582,12 +582,14 @@ static int32_t parseTimestampFromJSONObj(cJSON *root, int64_t *tsVal, SSmlLinesI
     return TSDB_CODE_TSC_INVALID_JSON;
   }
 
+#if !defined(_TD_SYLIXOS_)
   *tsVal = strtoll(value->numberstring, NULL, 10);
-  //if timestamp value is 0 use current system time
+  // if timestamp value is 0 use current system time
   if (*tsVal == 0) {
     *tsVal = taosGetTimestampNs();
     return TSDB_CODE_SUCCESS;
   }
+#endif
 
   size_t typeLen = strlen(type->valuestring);
   if (typeLen == 1 && type->valuestring[0] == 's') {
@@ -629,7 +631,8 @@ static int32_t parseTimestampFromJSON(cJSON *root, TAOS_SML_KV **pTS, int *num_k
     if (timestamp->valueint == 0) {
       tsVal = taosGetTimestampNs();
     } else {
-      tsVal = strtoll(timestamp->numberstring, NULL, 10);
+#if !defined(_TD_SYLIXOS_)
+      //      tsVal = strtoll(timestamp->numberstring, NULL, 10);
       size_t tsLen = strlen(timestamp->numberstring);
       if (tsLen == SML_TIMESTAMP_SECOND_DIGITS) {
         tsVal = (int64_t)(tsVal * 1e9);
@@ -638,6 +641,7 @@ static int32_t parseTimestampFromJSON(cJSON *root, TAOS_SML_KV **pTS, int *num_k
       } else {
         return TSDB_CODE_TSC_INVALID_TIME_STAMP;
       }
+#endif
     }
   } else if (cJSON_IsObject(timestamp)) {
     int32_t ret = parseTimestampFromJSONObj(timestamp, &tsVal, info);
@@ -729,12 +733,14 @@ static int32_t convertJSONNumber(TAOS_SML_KV *pVal, char* typeStr, cJSON *value,
      * use original string to do the conversion.
      */
     errno = 0;
+#if !defined(_TD_SYLIXOS_)
     int64_t val = (int64_t)strtoll(value->numberstring, NULL, 10);
     if (errno == ERANGE || !IS_VALID_BIGINT(val)) {
-      tscError("OTD:0x%"PRIx64" JSON value(%s) cannot fit in type(bigint)", info->id, value->numberstring);
+      tscError("OTD:0x%" PRIx64 " JSON value(%s) cannot fit in type(bigint)", info->id, value->numberstring);
       return TSDB_CODE_TSC_VALUE_OUT_OF_RANGE;
     }
     *(int64_t *)(pVal->value) = val;
+#endif
     return TSDB_CODE_SUCCESS;
   }
   //float
@@ -868,12 +874,14 @@ static int32_t parseValueFromJSON(cJSON *root, TAOS_SML_KV *pVal, SSmlLinesInfo*
       //} else {
       //  return TSDB_CODE_TSC_INVALID_JSON_TYPE;
       //}
+#if !defined(_TD_SYLIXOS_)
       if (isValidInteger(root->numberstring) || isValidFloat(root->numberstring)) {
         pVal->type = TSDB_DATA_TYPE_DOUBLE;
         pVal->length = (uint16_t)tDataTypes[pVal->type].bytes;
         pVal->value = tcalloc(pVal->length, 1);
         *(double *)(pVal->value) = (double)(root->valuedouble);
       }
+#endif
 
       break;
     }

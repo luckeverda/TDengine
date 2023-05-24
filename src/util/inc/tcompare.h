@@ -21,6 +21,7 @@ extern "C" {
 #endif
 
 #include "os.h"
+#include "talgo.h"
 
 #define TSDB_PATTERN_MATCH 0
 #define TSDB_PATTERN_NOMATCH 1

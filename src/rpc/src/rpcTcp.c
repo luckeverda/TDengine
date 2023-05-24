@@ -594,11 +594,13 @@ static void *taosProcessTcpData(void *param) {
         continue;
       }
 
+#if !defined(_TD_SYLIXOS_)
       if (events[i].events & EPOLLRDHUP) {
         tDebug("%s %p FD:%p RD hang up", pThreadObj->label, pFdObj->thandle, pFdObj);
         taosReportBrokenLink(pFdObj);
         continue;
       }
+#endif
 
       if (events[i].events & EPOLLHUP) {
         tDebug("%s %p FD:%p hang up", pThreadObj->label, pFdObj->thandle, pFdObj);
@@ -652,7 +654,12 @@ static SFdObj *taosMallocFdObj(SThreadObj *pThreadObj, SOCKET fd) {
   pFdObj->pThreadObj = pThreadObj;
   pFdObj->signature = pFdObj;
 
+#if defined(_TD_SYLIXOS_)
+  event.events = EPOLLIN;
+#else
   event.events = EPOLLIN | EPOLLRDHUP;
+#endif
+
   event.data.ptr = pFdObj;
   if (epoll_ctl(pThreadObj->pollFd, EPOLL_CTL_ADD, fd, &event) < 0) {
     tfree(pFdObj);

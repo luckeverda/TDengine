@@ -47,6 +47,11 @@ int32_t taosCompressFile(char *srcFileName, char *destFileName);
   typedef int(*__compar_fn_t)(const void *, const void *);
 
   int sendfile(int out_fd, int in_fd, off_t *offset, size_t size);
+
+  #define llroundl llround
+  #define openlog(...) {}
+  #define syslog(...) {}
+  #define closelog(...) {}
 #endif
 
 #ifdef __cplusplus

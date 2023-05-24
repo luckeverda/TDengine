@@ -480,6 +480,12 @@ static void doInitGlobalConfig(void) {
   osInit();
   srand(taosSafeRand());
 
+#if defined(_TD_SYLIXOS_)
+  tsEnableTelemetryReporting = 0;
+  tsAsyncLog = 0;
+  tsEnableMonitorModule = 0;
+#endif
+
   SGlobalCfg cfg = {0};
 
   // ip address
@@ -1940,7 +1946,10 @@ static void doInitGlobalConfig(void) {
   assert(tsGlobalConfigNum == TSDB_CFG_MAX_NUM);
 #else
   // if TD_TSZ macro define, have 5 count configs, so must add 5
+
+#if !defined(_TD_SYLIXOS_)
   assert(tsGlobalConfigNum + 5 == TSDB_CFG_MAX_NUM);
+#endif
 #endif
 }
 

@@ -146,7 +146,12 @@ void *syncAllocateTcpConn(void *param, int64_t rid, SOCKET connFd) {
   pConn->handleId = rid;
   pConn->closedByApp = 0;
 
+#if defined(_TD_SYLIXOS_)
+  event.events = EPOLLIN;
+#else
   event.events = EPOLLIN | EPOLLRDHUP;
+#endif
+
   event.data.ptr = pConn;
 
   if (epoll_ctl(pThread->pollFd, EPOLL_CTL_ADD, connFd, &event) < 0) {
@@ -229,11 +234,13 @@ static void *syncProcessTcpData(void *param) {
         continue;
       }
 
+#if !defined(_TD_SYLIXOS_)
       if (events[i].events & EPOLLRDHUP) {
         sDebug("conn is broken since EPOLLRDHUP");
         taosProcessBrokenLink(pConn);
         continue;
       }
+#endif
 
       if (pConn->closedByApp == 0) {
         if ((*pInfo->processIncomingMsg)(pConn->handleId, buffer) < 0) {

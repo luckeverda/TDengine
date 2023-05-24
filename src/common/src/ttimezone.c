@@ -52,6 +52,10 @@ void tsSetTimeZone() {
 #endif
 #endif
 
+#if defined(_TD_SYLIXOS_)
+  int32_t daylight = 0;
+#endif
+
   int32_t tz = (int32_t)((-timezone * MILLISECOND_PER_SECOND) / MILLISECOND_PER_HOUR);
   tz += daylight;
 

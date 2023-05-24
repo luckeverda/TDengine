@@ -126,6 +126,7 @@ extern "C" {
   #include <lwip/netdb.h>
   #include <sys/ioctl.h>
   #include <termios.h>
+  #include <sys/epoll.h>
 #endif
 
 #ifdef __cplusplus

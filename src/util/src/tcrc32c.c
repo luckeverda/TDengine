@@ -18,7 +18,8 @@
 	  3. This notice may not be removed or altered from any source distribution.
 	*/
 
-#if !defined(_TD_ARM_) && !defined(_TD_MIPS_)
+#define _DEFAULT_SOURCE
+#if !defined(_TD_ARM_) && !defined(_TD_MIPS_) && !defined(_TD_LOONGARCH_) && !defined(_TD_SYLIXOS_)
 #include <nmmintrin.h>
 #endif
 

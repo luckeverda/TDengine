@@ -20,9 +20,13 @@
 extern "C" {
 #endif
 
+#if defined(_TD_SYLIXOS_)
+typedef int (*__compar_fn_t) (const void *, const void *);
+#else
 #ifndef __COMPAR_FN_T
 # define __COMPAR_FN_T
 typedef int (*__compar_fn_t) (const void *, const void *);
+#endif
 #endif
 
 #define TD_EQ 0x1
