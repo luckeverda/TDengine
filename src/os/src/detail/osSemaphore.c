@@ -35,7 +35,12 @@ bool taosCheckPthreadValid(pthread_t thread) { return thread != 0; }
 int64_t taosGetSelfPthreadId() {
   static __thread int id = 0;
   if (id != 0) return id;
+#ifdef _TD_SYLIXOS_
+  id = (pid_t)getpid();
+#else
   id = syscall(SYS_gettid);
+#endif
+
   return id;
 }
 

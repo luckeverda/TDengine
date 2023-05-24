@@ -113,6 +113,19 @@ extern "C" {
   #include "sys/msvcTypes.h"
 #endif
 
+#if defined (_TD_SYLIXOS_)
+  #include <regex.h>
+  #include <endian.h>
+  #include <kernel/include/k_ptype.h>
+  #include <sys/resource.h>
+  #include <sys/statvfs.h>
+  #include <sys/file.h>
+  #include <sys/utsname.h>
+  #include <unistd.h>
+  #include <lwip/sockets.h>
+  #include <lwip/netdb.h>
+#endif
+
 #ifdef __cplusplus
 }
 #endif

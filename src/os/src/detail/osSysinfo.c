@@ -51,7 +51,12 @@ static void taosGetProcInfos() {
   tsOpenMax = sysconf(_SC_OPEN_MAX);
   tsStreamMax = sysconf(_SC_STREAM_MAX);
 
+#if defined(_TD_SYLIXOS_)
+  tsProcId = (pid_t)getpid();
+#else
   tsProcId = (pid_t)syscall(SYS_gettid);
+#endif
+
   tsPageSizeKB = (float)(sysconf(_SC_PAGESIZE)) / 1024;
 
   snprintf(tsProcMemFile, 25, "/proc/%d/status", tsProcId);
@@ -161,6 +166,7 @@ static bool taosGetProcCpuInfo(ProcCpuInfo *cpuInfo) {
 }
 
 static void taosGetSystemTimezone() {
+#if !defined(_TD_SYLIXOS_)
   SGlobalCfg *cfg_timezone = taosGetConfigOption("timezone");
   if (cfg_timezone == NULL) return;
   if (cfg_timezone->cfgStatus >= TAOS_CFG_CSTATUS_DEFAULT) {
@@ -225,6 +231,7 @@ static void taosGetSystemTimezone() {
 
   // cfg_timezone->cfgStatus = TAOS_CFG_CSTATUS_DEFAULT;
   uWarn("timezone not configured, set to system default:%s", tsTimezone);
+#endif
 }
 
 /*
@@ -245,6 +252,7 @@ static void taosGetSystemTimezone() {
  *
  */
 static void taosGetSystemLocale() {  // get and set default locale
+#if !defined(_TD_SYLIXOS_)
   char  sep = '.';
   char *locale = NULL;
 
@@ -277,6 +285,7 @@ static void taosGetSystemLocale() {  // get and set default locale
       uWarn("can't get locale and charset from system, set it to UTF-8");
     }
   }
+#endif
 }
 
 int32_t taosGetCpuCores() { return (int32_t)sysconf(_SC_NPROCESSORS_ONLN); }
@@ -614,6 +623,7 @@ void taosKillSystem() {
 }
 
 void taosSetCoreDump() {
+#if !defined(_TD_SYLIXOS_)
   if (0 == tsEnableCoreFile) {
     return;
   }
@@ -687,6 +697,8 @@ void taosSetCoreDump() {
   }
 
   uInfo("The new core_uses_pid[%" PRIu64 "]: %d", old_len, old_usespid);
+#endif
+
 #endif
 }
 

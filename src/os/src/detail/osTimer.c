@@ -37,18 +37,26 @@ static void *taosProcessAlarmSignal(void *tharg) {
   sigprocmask(SIG_BLOCK, &sigset, NULL);
   void (*callback)(int) = tharg;
 
+#if defined(_TD_SYLIXOS_)
   struct sigevent sevent = {{0}};
+#else
+  struct sigevent sevent;
+  memset(&sevent, 0, sizeof(struct sigevent));
+#endif
 
   setThreadName("tmr");
 
-  #ifdef _ALPINE
-    sevent.sigev_notify = SIGEV_THREAD;
-    sevent.sigev_value.sival_int = syscall(__NR_gettid);
-  #else
-    sevent.sigev_notify = SIGEV_THREAD_ID;
-    sevent._sigev_un._tid = syscall(__NR_gettid);
-  #endif
-  
+#if defined(_TD_SYLIXOS_)
+  sevent.sigev_notify = SIGEV_THREAD_ID;
+  sevent.sigev_notify_thread_id = pthread_self();
+#elif defined(_ALPINE)
+  sevent.sigev_notify = SIGEV_THREAD;
+  sevent.sigev_value.sival_int = pthread_self();
+#else
+  sevent.sigev_notify = SIGEV_THREAD_ID;
+  sevent._sigev_un._tid = syscall(__NR_gettid);
+#endif
+
   sevent.sigev_signo = SIGALRM;
 
   if (timer_create(CLOCK_REALTIME, &sevent, &timerId) == -1) {

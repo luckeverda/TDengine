@@ -101,6 +101,13 @@ const char *taosInetNtoa(struct in_addr ipInt);
   #define htobe64 htonll
 #endif
 
+#if defined (_TD_SYLIXOS_)
+  #if defined(MSG_NOSIGNAL)
+  #undef MSG_NOSIGNAL
+  #endif
+  #define MSG_NOSIGNAL 0
+#endif
+
 #ifdef __cplusplus
 }
 #endif

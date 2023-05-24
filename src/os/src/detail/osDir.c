@@ -169,3 +169,155 @@ cmp_end:
 
   return ret;
 }
+
+
+#ifdef _TD_SYLIXOS_
+#define MIN_CHUNK 64
+
+int
+getstr(lineptr, n, stream, terminator, offset)
+char **lineptr;
+size_t *n;
+FILE *stream;
+char terminator;
+int offset;
+{
+    int nchars_avail;       /* Allocated but unused chars in *LINEPTR.  */
+    char *read_pos;     /* Where we're reading into *LINEPTR. */
+    int ret;
+
+    if (!lineptr || !n || !stream)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
+    if (!*lineptr)
+    {
+        *n = MIN_CHUNK;
+        *lineptr = malloc(*n);
+        if (!*lineptr)
+        {
+            errno = ENOMEM;
+            return -1;
+        }
+    }
+
+    nchars_avail = (int)(*n - offset);
+    read_pos = *lineptr + offset;
+
+    for (;;)
+    {
+        int save_errno;
+        register int c = getc(stream);
+
+        save_errno = errno;
+
+        /* We always want at least one char left in the buffer, since we
+        always (unless we get an error while reading the first char)
+        NUL-terminate the line buffer.  */
+
+        assert((*lineptr + *n) == (read_pos + nchars_avail));
+        if (nchars_avail < 2)
+        {
+            if (*n > MIN_CHUNK)
+                *n *= 2;
+            else
+                *n += MIN_CHUNK;
+
+            nchars_avail = (int)(*n + *lineptr - read_pos);
+            *lineptr = realloc(*lineptr, *n);
+            if (!*lineptr)
+            {
+                errno = ENOMEM;
+                return -1;
+            }
+            read_pos = *n - nchars_avail + *lineptr;
+            assert((*lineptr + *n) == (read_pos + nchars_avail));
+        }
+
+        if (ferror(stream))
+        {
+            /* Might like to return partial line, but there is no
+            place for us to store errno.  And we don't want to just
+            lose errno.  */
+            errno = save_errno;
+            return -1;
+        }
+
+        if (c == EOF)
+        {
+            /* Return partial line, if any.  */
+            if (read_pos == *lineptr)
+                return -1;
+            else
+                break;
+        }
+
+        *read_pos++ = c;
+        nchars_avail--;
+
+        if (c == terminator)
+            /* Return the line.  */
+            break;
+    }
+
+    /* Done - NUL terminate and return the number of chars read.  */
+    *read_pos = '\0';
+
+    ret = (int)(read_pos - (*lineptr + offset));
+    return ret;
+}
+
+int
+getline(lineptr, n, stream)
+char **lineptr;
+size_t *n;
+FILE *stream;
+{
+    return getstr(lineptr, n, stream, '\n', 0);
+}
+#endif
+
+
+#ifdef _TD_SYLIXOS_
+
+void wordfree(wordexp_t *pwordexp) {}
+
+int wordexp(const char *words, wordexp_t *pwordexp, int flags) {
+  pwordexp->we_offs = 0;
+  pwordexp->we_wordc = 1;
+  pwordexp->we_wordv = (char **)(pwordexp->wordPos);
+  pwordexp->we_wordv[0] = (char *)words;
+  return 0;
+}
+
+int sendfile(int out_fd, int in_fd, off_t *offset, size_t size)
+{
+    char buf[8192];
+    int readn = size > sizeof(buf) ? sizeof(buf) : size;
+
+    int ret;
+    //带偏移量地原子的从文件中读取数据
+    int n = pread(in_fd, buf, readn, *offset);
+
+    if (n > 0)
+    {
+        ret = write(out_fd, buf, n);
+        if (ret < 0)
+        {
+            perror("write() failed.");
+        }
+        else
+        {
+            *offset += ret;
+        }
+        return ret;
+    }
+    else
+    {
+        perror("pread() failed.");
+        return -1;
+    }
+}
+#endif

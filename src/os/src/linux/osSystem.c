@@ -19,7 +19,10 @@
 #include "tglobal.h"
 #include "tulog.h"
 
-void* taosLoadDll(const char *filename) {
+void* taosLoadDll(const char* filename) {
+#if defined(_TD_SYLIXOS_)
+  return NULL;
+#else
   void *handle = dlopen (filename, RTLD_LAZY);  
   if (!handle) {  
     uError("load dll:%s failed, error:%s", filename, dlerror());  
@@ -29,10 +32,14 @@ void* taosLoadDll(const char *filename) {
   uDebug("dll %s loaded", filename);
 
   return handle;
+#endif
 }
 
 void* taosLoadSym(void* handle, char* name) {
-	void* sym = dlsym(handle, name);
+#if defined(_TD_SYLIXOS_)
+  return NULL;
+#else
+  void* sym = dlsym(handle, name);
   char* err = NULL;
   
 	if ((err = dlerror()) != NULL)  {  
@@ -43,17 +50,23 @@ void* taosLoadSym(void* handle, char* name) {
   uDebug("sym %s loaded", name)
 
   return sym;
+#endif
 }
 
 void taosCloseDll(void *handle) {
+#if !defined(_TD_SYLIXOS_)
   if (handle) {
     dlclose(handle);
   }
+#endif
 }
 
 int taosSetConsoleEcho(bool on)
 {
-#define ECHOFLAGS (ECHO | ECHOE | ECHOK | ECHONL)
+#if defined(_TD_SYLIXOS_)
+  return 0;
+#else
+  #define ECHOFLAGS (ECHO | ECHOE | ECHOK | ECHONL)
     int err;
     struct termios term;
 
@@ -74,5 +87,6 @@ int taosSetConsoleEcho(bool on)
     }
 
     return 0;
+#endif
 }
 

@@ -80,6 +80,9 @@ bool taosValidateEncodec(const char *encodec) {
 #else
 
 int32_t taosUcs4ToMbs(void *ucs4, int32_t ucs4_max_len, char *mbs) {
+#if defined(_TD_SYLIXOS_)
+  return 0;
+#else
   mbstate_t state = {0};
   int32_t   len = (int32_t)wcsnrtombs(NULL, (const wchar_t **)&ucs4, ucs4_max_len / 4, 0, &state);
   if (len < 0) {
@@ -93,15 +96,20 @@ int32_t taosUcs4ToMbs(void *ucs4, int32_t ucs4_max_len, char *mbs) {
   }
 
   return len;
+#endif
 }
 
 bool taosMbsToUcs4(char *mbs, size_t mbsLength, char *ucs4, int32_t ucs4_max_len, int32_t *len) {
+#if defined(_TD_SYLIXOS_)
+  return true;
+#else
   memset(ucs4, 0, ucs4_max_len);
   mbstate_t state = {0};
-  int32_t retlen = mbsnrtowcs((wchar_t *)ucs4, (const char **)&mbs, mbsLength, ucs4_max_len / 4, &state);
+  int32_t   retlen = mbsnrtowcs((wchar_t *)ucs4, (const char **)&mbs, mbsLength, ucs4_max_len / 4, &state);
   *len = retlen;
 
   return retlen >= 0;
+#endif
 }
 
 bool taosValidateEncodec(const char *encodec) {
