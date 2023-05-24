@@ -699,3 +699,38 @@ const char* fmtts(int64_t ts) {
 
   return buf;
 }
+
+#if defined(_TD_SYLIXOS_)
+struct tm *sylix_localtime_r( const time_t *sec, struct tm *buf) {
+  const int kHoursInDay = 24;
+  const int kMinutesInHour = 60;
+  const int kDaysFromUnixTime = 2472632;
+  const int kDaysFromYear = 153;
+  const int kMagicUnkonwnFirst = 146097;
+  const int kMagicUnkonwnSec = 1461;
+  const int time_zone = 0;
+  
+  buf->tm_sec = *sec % kMinutesInHour;
+
+  int i = (*sec / kMinutesInHour);
+  buf->tm_min = i % kMinutesInHour;              // nn
+  i /= kMinutesInHour;
+  buf->tm_hour = (i + time_zone) % kHoursInDay;  // hh
+  buf->tm_mday = (i + time_zone) / kHoursInDay;
+
+  int a = buf->tm_mday + kDaysFromUnixTime;
+  int b = (a * 4 + 3) / kMagicUnkonwnFirst;
+  int c = (-b * kMagicUnkonwnFirst) / 4 + a;
+  int d = ((c * 4 + 3) / kMagicUnkonwnSec);
+  int e = -d * kMagicUnkonwnSec;
+  e = e / 4 + c;
+
+  int m = (5 * e + 2) / kDaysFromYear;
+  buf->tm_mday = -(kDaysFromYear * m + 2) / 5 + e + 1;
+  buf->tm_mon = (-m / 10) * 12 + m + 2;
+  buf->tm_year = b * 100 + d - 6700 + (m / 10);
+  
+
+  return buf;
+}
+#endif

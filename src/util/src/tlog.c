@@ -375,7 +375,13 @@ void taosPrintLog(const char *flags, int32_t dflag, const char *format, ...) {
 
   gettimeofday(&timeSecs, NULL);
   curTime = timeSecs.tv_sec;
+
+#if defined(_TD_SYLIXOS_)  
+  ptm = sylix_localtime_r(&curTime, &Tm);
+#else
   ptm = localtime_r(&curTime, &Tm);
+#endif
+
 
   len = sprintf(buffer, "%02d/%02d %02d:%02d:%02d.%06d %08" PRId64 " ", ptm->tm_mon + 1, ptm->tm_mday, ptm->tm_hour,
                 ptm->tm_min, ptm->tm_sec, (int32_t)timeSecs.tv_usec, taosGetSelfPthreadId());

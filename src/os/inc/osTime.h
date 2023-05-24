@@ -117,6 +117,11 @@ int32_t taos_parse_time(char* timestr, int64_t* time, int32_t len, int32_t timeP
 void    deltaToUtcInitOnce();
 
 int64_t convertTimePrecision(int64_t time, int32_t fromPrecision, int32_t toPrecision);
+
+#if defined(_TD_SYLIXOS_)
+  struct tm *sylix_localtime_r( const time_t *timer, struct tm *buf);
+#endif
+
 #ifdef __cplusplus
 }
 #endif
