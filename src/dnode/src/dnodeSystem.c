@@ -163,9 +163,17 @@ int32_t main(int32_t argc, char *argv[]) {
 
   syslog(LOG_INFO, "Started TDengine service successfully.");
 
+#if !defined(_TD_SYLIXOS_)
   if (tsem_wait(&exitSem) != 0) {
     syslog(LOG_ERR, "failed to wait exit semphore: %s", strerror(errno));
   }
+#else
+  while (!dnodeExit) {
+    taosMsleep(200);
+  }
+#endif
+
+  dInfo("TDengine is shutting down!");
 
   dnodeCleanUpSystem();
   // close the syslog
@@ -196,7 +204,7 @@ static void sigintHandler(int32_t signum, void *sigInfo, void *context) {
   // clean the system.
   dInfo("shut down signal is %d", signum);
 
-#ifndef WINDOWS
+#if !defined(WINDOWS) && !defined(_TD_SYLIXOS_)
   dInfo("sender PID:%d cmdline:%s", ((siginfo_t *)sigInfo)->si_pid, taosGetCmdlineByPID(((siginfo_t *)sigInfo)->si_pid));
 #endif
 
@@ -205,9 +213,11 @@ static void sigintHandler(int32_t signum, void *sigInfo, void *context) {
 
   dnodeExit = true;
 
+#if !defined(_TD_SYLIXOS_)
   // inform main thread to exit
   tsem_post(&exitSem);
 #ifdef WINDOWS
   tsem_wait(&exitSem);
+#endif
 #endif
 }

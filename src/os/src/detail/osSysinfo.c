@@ -140,6 +140,7 @@ static bool taosGetSysCpuInfo(SysCpuInfo *cpuInfo) {
 }
 
 static bool taosGetProcCpuInfo(ProcCpuInfo *cpuInfo) {
+#if !defined(_TD_SYLIXOS_)
   FILE *fp = fopen(tsProcCpuFile, "r");
   if (fp == NULL) {
     uError("open file:%s failed", tsProcCpuFile);
@@ -166,6 +167,7 @@ static bool taosGetProcCpuInfo(ProcCpuInfo *cpuInfo) {
 
   tfree(line);
   fclose(fp);
+#endif
   return true;
 }
 
@@ -477,7 +479,7 @@ bool taosGetNetworkIO(float *netInKb, float *netOutKb) {
 }
 
 bool taosReadProcIO(int64_t *rchars, int64_t *wchars, int64_t *rbytes, int64_t *wbytes) {
-#if defined _TD_ARM_
+#if defined(_TD_ARM) || !defined(_TD_SYLIXOS_)
   if (rchars) *rchars = 0;
   if (wchars) *wchars = 0;
   if (rbytes) *rbytes = 0;

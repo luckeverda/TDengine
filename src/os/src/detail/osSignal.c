@@ -25,7 +25,9 @@
 typedef void (*FLinuxSignalHandler)(int32_t signum, siginfo_t *sigInfo, void *context);
 
 void taosSetSignal(int32_t signum, FSignalHandler sigfp) {
-  struct sigaction act; memset(&act, 0, sizeof(act));
+#if !defined(_TD_SYLIXOS_)
+  struct sigaction act;
+  memset(&act, 0, sizeof(act));
 #if 1
   act.sa_flags = SA_SIGINFO;
   act.sa_sigaction = (FLinuxSignalHandler)sigfp;
@@ -33,6 +35,9 @@ void taosSetSignal(int32_t signum, FSignalHandler sigfp) {
   act.sa_handler = sigfp;
 #endif
   sigaction(signum, &act, NULL);
+#else
+  signal(signum, sigfp);
+#endif
 }
 
 void taosIgnSignal(int32_t signum) {
