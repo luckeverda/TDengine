@@ -124,6 +124,8 @@ extern "C" {
   #include <unistd.h>
   #include <lwip/sockets.h>
   #include <lwip/netdb.h>
+  #include <sys/ioctl.h>
+  #include <termios.h>
 #endif
 
 #ifdef __cplusplus

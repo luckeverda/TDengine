@@ -37,12 +37,7 @@ static void *taosProcessAlarmSignal(void *tharg) {
   sigprocmask(SIG_BLOCK, &sigset, NULL);
   void (*callback)(int) = tharg;
 
-#if defined(_TD_SYLIXOS_)
   struct sigevent sevent = {{0}};
-#else
-  struct sigevent sevent;
-  memset(&sevent, 0, sizeof(struct sigevent));
-#endif
 
   setThreadName("tmr");
 

@@ -52,7 +52,7 @@ static void taosGetProcInfos() {
   tsStreamMax = sysconf(_SC_STREAM_MAX);
 
 #if defined(_TD_SYLIXOS_)
-  tsProcId = (pid_t)getpid();
+  // tsProcId = (pid_t)getpid();
 #else
   tsProcId = (pid_t)syscall(SYS_gettid);
 #endif
@@ -252,7 +252,6 @@ static void taosGetSystemTimezone() {
  *
  */
 static void taosGetSystemLocale() {  // get and set default locale
-#if !defined(_TD_SYLIXOS_)
   char  sep = '.';
   char *locale = NULL;
 
@@ -285,7 +284,6 @@ static void taosGetSystemLocale() {  // get and set default locale
       uWarn("can't get locale and charset from system, set it to UTF-8");
     }
   }
-#endif
 }
 
 int32_t taosGetCpuCores() { return (int32_t)sysconf(_SC_NPROCESSORS_ONLN); }

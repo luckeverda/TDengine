@@ -487,7 +487,13 @@ void set_terminal_mode() {
   }
 }
 
-void get_history_path(char *history) { sprintf(history, "%s/%s", getpwuid(getuid())->pw_dir, HISTORY_FILE); }
+void get_history_path(char *history) {
+#if defined(_TD_SYLIXOS_)
+  sprintf(history, "%s/%s", "/root", HISTORY_FILE);
+#else
+  sprintf(history, "%s/%s", getpwuid(getuid())->pw_dir, HISTORY_FILE);
+#endif
+}
 
 void clearScreen(int ecmd_pos, int cursor_pos) {
   struct winsize w;
