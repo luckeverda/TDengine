@@ -993,6 +993,7 @@ static SRpcConn *rpcProcessMsgHead(SRpcInfo *pRpc, SRecvInfo *pRecv, SRpcReqCont
   }
 
   // compatibility between old version client and new version server, since 2.4.0.0
+#if !defined (_TD_SYLIXOS_)
   if (rpcIsReq(pHead->msgType)) {
     if ((htonl(pHead->msgVer) >> 16 != tsVersion >> 24) ||
         ((htonl(pHead->msgVer) >> 16 == tsVersion >> 24) && htonl(pHead->msgVer) < ((2 << 16) | (4 << 8)))) {
@@ -1002,6 +1003,7 @@ static SRpcConn *rpcProcessMsgHead(SRpcInfo *pRpc, SRecvInfo *pRecv, SRpcReqCont
       return NULL;
     }
   }
+#endif
 
   pConn = rpcGetConnObj(pRpc, sid, pRecv);
   if (pConn == NULL) {

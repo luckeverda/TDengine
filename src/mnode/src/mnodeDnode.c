@@ -547,6 +547,7 @@ static int32_t mnodeProcessDnodeStatusMsg(SMnodeMsg *pMsg) {
   pStatus->lastReboot   = htonl(pStatus->lastReboot);
   pStatus->numOfCores   = htons(pStatus->numOfCores);
 
+#if !defined (_TD_SYLIXOS_)
   uint32_t _version = htonl(pStatus->version);
   if ((_version >> 16) != (tsVersion >> 24)) {
     pDnode = mnodeGetDnodeByEp(pStatus->dnodeEp);
@@ -556,6 +557,7 @@ static int32_t mnodeProcessDnodeStatusMsg(SMnodeMsg *pMsg) {
     mError("dnode:%d, status msg version:%d not equal with cluster:%d", pStatus->dnodeId, _version, tsVersion);
     return TSDB_CODE_MND_INVALID_MSG_VERSION;
   }
+#endif
 
   if (pStatus->dnodeId == 0) {
     pDnode = mnodeGetDnodeByEp(pStatus->dnodeEp);
