@@ -320,4 +320,64 @@ int sendfile(int out_fd, int in_fd, off_t *offset, size_t size)
         return -1;
     }
 }
+
+#define IS_SLASH_P(c) (*(c) == '/' || *(c) == '\\')
+// 对于合法的路径输入，返回其上一级目录，不包含目录分隔符
+// 返回值为pcDir的长度
+
+int taosDirName(const char *path, char *pcDir) {
+    int         len = 0;
+    const char *endp = NULL;
+    const char *runp = NULL;
+
+    *pcDir = '\0';
+    if (path == NULL || *path == '\0') {
+        return len;
+    }
+
+    runp = path + strlen(path) - 1;
+    while (runp > path && IS_SLASH_P(runp)) --runp;
+    if (runp == path) {
+        endp = path;
+    } else {
+        while (runp > path && !IS_SLASH_P(runp)) --runp;
+        if (runp == path) {
+            endp = path;
+        } else {
+            while (runp > path && IS_SLASH_P(runp)) --runp;
+            endp = runp;
+        }
+    }
+
+    if (endp != path) {
+        len = endp - path + 1;
+        memcpy(pcDir, path, len);
+        pcDir[len] = '\0';
+    } else {
+        if (*path == '/')  // for Linux
+        {
+            strcpy(pcDir, "/");
+            len = 1;
+        } else if (path[1] == ':')  // for Windows
+        {
+            memcpy(pcDir, path, 2);
+            pcDir[2] = '\0';
+            len = 2;
+        } else {
+            strcpy(pcDir, ".");
+            len = 1;
+        }
+    }
+    return len;
+}
+
+#else
+  
+int taosDirName(const char *path, char *pcDir) {
+  char *p = strdup(dirname(path));
+  strncpy(pcDir, p, PATH_MAX);
+  free(p);
+  return strlen(pcDir);
+}
+
 #endif

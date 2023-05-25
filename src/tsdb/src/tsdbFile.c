@@ -114,12 +114,12 @@ int tsdbCreateMFile(SMFile *pMFile, bool updateHeader) {
   if (pMFile->fd < 0) {
     if (errno == ENOENT) {
       // Try to create directory recursively
-      char *s = strdup(TFILE_REL_NAME(&(pMFile->f)));
-      if (tfsMkdirRecurAt(dirname(s), TSDB_FILE_LEVEL(pMFile), TSDB_FILE_ID(pMFile)) < 0) {
-        tfree(s);
+      char dname[PATH_MAX] = {0};
+      taosDirName(TFILE_REL_NAME(&(pMFile->f)), dname);
+
+      if (tfsMkdirRecurAt(dname, TSDB_FILE_LEVEL(pMFile), TSDB_FILE_ID(pMFile)) < 0) {
         return -1;
       }
-      tfree(s);
 
       pMFile->fd = open(TSDB_FILE_FULL_NAME(pMFile), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0755);
       if (pMFile->fd < 0) {
@@ -359,12 +359,12 @@ int tsdbCreateDFile(SDFile *pDFile, bool updateHeader, TSDB_FILE_T fType) {
   if (pDFile->fd < 0) {
     if (errno == ENOENT) {
       // Try to create directory recursively
-      char *s = strdup(TFILE_REL_NAME(&(pDFile->f)));
-      if (tfsMkdirRecurAt(dirname(s), TSDB_FILE_LEVEL(pDFile), TSDB_FILE_ID(pDFile)) < 0) {
-        tfree(s);
+      char dname[PATH_MAX] = {0};
+      taosDirName(TFILE_REL_NAME(&(pDFile->f)), dname);
+
+      if (tfsMkdirRecurAt(dname, TSDB_FILE_LEVEL(pDFile), TSDB_FILE_ID(pDFile)) < 0) {
         return -1;
       }
-      tfree(s);
 
       pDFile->fd = open(TSDB_FILE_FULL_NAME(pDFile), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0755);
       if (pDFile->fd < 0) {

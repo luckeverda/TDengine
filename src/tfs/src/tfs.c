@@ -240,10 +240,9 @@ void tfsbasename(const TFILE *pf, char *dest) {
 }
 
 void tfsdirname(const TFILE *pf, char *dest) {
-  char tname[TSDB_FILENAME_LEN] = "\0";
-
-  tstrncpy(tname, pf->aname, TSDB_FILENAME_LEN);
-  tstrncpy(dest, dirname(tname), TSDB_FILENAME_LEN);
+  char dname[PATH_MAX] = {0};
+  taosDirName(pf->aname, dname);
+  tstrncpy(dest, dname, TSDB_FILENAME_LEN);
 }
 
 // DIR APIs ====================================
@@ -274,15 +273,14 @@ int tfsMkdirRecurAt(const char *rname, int level, int id) {
       // internal static storage space that will be overwritten by next call. For case like that, we should not use
       // the pointer directly in this recursion.
       // See https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/dirname.3.html
-      char *dir = strdup(dirname(s));
+      char dname[TSDB_FILENAME_LEN] = {0};
+      taosDirName(s, dname);
 
-      if (tfsMkdirRecurAt(dir, level, id) < 0) {
+      if (tfsMkdirRecurAt(dname, level, id) < 0) {
         free(s);
-        free(dir);
         return -1;
       }
       free(s);
-      free(dir);
 
       if (tfsMkdirAt(rname, level, id) < 0) {
         return -1;

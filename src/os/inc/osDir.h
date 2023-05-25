@@ -54,6 +54,8 @@ int32_t taosCompressFile(char *srcFileName, char *destFileName);
   #define closelog(...) {}
 #endif
 
+int taosDirName(const char *path, char *pcDir);
+
 #ifdef __cplusplus
 }
 #endif

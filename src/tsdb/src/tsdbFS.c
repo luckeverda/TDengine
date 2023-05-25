@@ -929,6 +929,10 @@ static int tsdbScanRootDir(STsdbRepo *pRepo) {
   while ((pf = tfsReaddir(tdir))) {
     tfsbasename(pf, bname);
 
+#if defined(_TD_SYLIXOS_)
+    if (bname[0] == 0) continue;
+#endif
+
     if (strcmp(bname, tsdbTxnFname[TSDB_TXN_CURR_FILE]) == 0 || strcmp(bname, "data") == 0) {
       // Skip current file and data directory
       continue;
@@ -1015,6 +1019,10 @@ static int tsdbRestoreMeta(STsdbRepo *pRepo) {
 
   while ((pf = tfsReaddir(tdir))) {
     tfsbasename(pf, bname);
+
+#if defined(_TD_SYLIXOS_)
+    if (bname[0] == 0) continue;
+#endif
 
     if (strcmp(bname, "data") == 0) {
       // Skip the data/ directory
